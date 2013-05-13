@@ -61,20 +61,15 @@ def runTest2():
     else:
         msg = "Pre Check failed,test halted"
         raise SystemExit
-        
-    
-    
+  
 
 def runTest3():
     raise SystemExit
- 
 
-
-    
     
 select = {0 : runTest1,
            1 : runTest2,
-           2 : runTest3,           
+           2 : runTest3,          
 }
 
 
@@ -86,5 +81,4 @@ if getattr(data,'all')==True and getattr(data,'instances')==False:
 elif getattr(data,'all')==False and getattr(data,'instances')==True:
     select[1]()
 else:
-    select[2]() 
-
+    select[2]()
