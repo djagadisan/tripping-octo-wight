@@ -35,8 +35,6 @@ class RunInstancesTest():
 
     def runTest(self,obj):
         
-   
-        now = datetime.datetime.now()
         startTime = time.time()
         
      
@@ -66,7 +64,7 @@ class RunInstancesTest():
         msg = "Security Group %s created" % security_group.name
         self.log.log_data(obj.log_file,msg,"INFO")
         
-        security_grouprules = self.nova_.createSecurityGroupRules(security_group.id,'tcp','22','22',client)
+        self.nova_.createSecurityGroupRules(security_group.id,'tcp','22','22',client)
         msg = "Rules 'tcp', '22' 0.0.0.0/0 added"
         self.log.log_data(obj.log_file,msg,"INFO")
         time.sleep(obj.timeout)
@@ -91,49 +89,49 @@ class RunInstancesTest():
             self.log.log_data(obj.log_file,msg,"ERROR")
             raise SystemExit
         
-        if helper._pollStatus(timeout,run_instances.id,'ACTIVE',10,client)==True:
-            vm_post_run = nova_.getInstancesInfo(run_instances.id,client) 
+        if self.helper._pollStatus(obj.timeout,run_instances.id,'ACTIVE',10,client)==True:
+            vm_post_run = self.nova_.getInstancesInfo(run_instances.id,client) 
             msg = "Instances: %s, IP: %s, Status: %s" % (vm_post_run[0].name,vm_post_run[1][0],vm_post_run[0].status)
-            self.log.log_debug(obj.log_file,msg,"INFO")
+            self.log.log_data(obj.log_file,msg,"INFO")
             
-            if helper.checkPortAlive(vm_post_run[1][0],int(obj.timeout),22)==True:
+            if self.helper.checkPortAlive(vm_post_run[1][0],int(obj.timeout),22)==True:
                 msg = "Port is up and responding, proceeding to run file check"
-                self.log.log_debug(obj.log_file,msg,"INFO")
+                self.log.log_data(obj.log_file,msg,"INFO")
             
-                if helper.fileCheck(vm_post_run[1][0],obj.image_username,obj.cp_file,obj.tmp_dir,obj.ssh_key)==True:
+                if self.helper.fileCheck(vm_post_run[1][0],obj.image_username,obj.cp_file,obj.tmp_dir,obj.ssh_key)==True:
                     msg = "Running file check"
-                    self.log.log_debug(obj.log_file,msg,"INFO")
-                    nova_.rebootInstances(vm_post_run[0])
+                    self.log.log_data(obj.log_file,msg,"INFO")
+                    self.nova_.rebootInstances(vm_post_run[0])
                     msg = "Rebooting instances"
-                    self.log.log_debug(obj.log_file,msg,"INFO")
+                    self.log.log_data(obj.log_file,msg,"INFO")
                     
-                    if helper.checkPortAlive(vm_post_run[1][0],int(obj.timeout),22)==True:
+                    if self.helper.checkPortAlive(vm_post_run[1][0],int(obj.timeout),22)==True:
                         
-                        msg = "Reboot OK, Test Passed, Exiting Run Instances Test"
-                        self.log.log_debug(obj.log_file,msg,"INFO")
+                        msg = "Reboot OK, Test Passed"
+                        self.log.log_data(obj.log_file,msg,"INFO")
                         return vm_post_run[0]
                     
                     else:
                         msg = "Reboot Failed, Exiting Test"
-                        self.log.log_debug(obj.log_file,msg,"ERROR")
+                        self.log.log_data(obj.log_file,msg,"ERROR")
                         raise SystemExit
                     
                 
                 else:
                     msg = "File Check failed, exiting  Test"
-                    self.log.log_debug(obj,log_file,msg,"ERROR")
+                    self.log.log_data(obj.log_file,msg,"ERROR")
                     raise SystemExit
                     
             
             
             else:
                 msg = "Port is not responding after %s, possible timeout from boot" % (time.time()- startTime)
-                self.log.log_debug(obj.log_file,msg,"ERROR")
+                self.log.log_data(obj.log_file,msg,"ERROR")
                 
             
             
         else:
             msg = "Timeout from build, stuck in %r for more than %r" % (run_instances.status, (time.time()-startTime))
-            self.log.log_debug(obj.log_file,msg,"ERROR") 
+            self.log.log_data(obj.log_file,msg,"ERROR") 
             raise SystemExit   
         
