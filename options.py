@@ -2,19 +2,13 @@ import os
 import sys
 import argparse
 
+class Options ():
 
-
-def _arg_parse():
-    parser = argparse.ArgumentParser(argument_default=argparse.SUPPRESS)
-    parser.add_argument('run_test',help='Run Test')
-    parser.add_argument('--all',action='store',required=True,help='Run VM and Snapshot Test')
-    parser.add_argument('--instances',action='store',required=True,help='Run VM Test only')
+    def arg_parse(self):
+        parse = argparse.ArgumentParser(description="Run VM Test on NeCTAR")
+        group = parse.add_mutually_exclusive_group(required=True)
+        group.add_argument("--all",action='store_true',help="Run VM and Snapshot Test")
+        group.add_argument("--instances",action='store_true',help="Run VM Test only")
+        args = parse.parse_args()
     
-    
-    return parser.parse_args()
-
-
-
-__init__ = 'main'
-
-results=_arg_parse()
+        return args
