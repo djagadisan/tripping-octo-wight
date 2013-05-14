@@ -1,5 +1,3 @@
-import os
-import sys
 from config_data import GetVar
 from util import GetConfig
 from runtestinstances import RunInstancesTest
@@ -9,19 +7,15 @@ from options import Options
 
 
 __init__ = 'main'
-
-config = GetVar("deven")
+get_options = Options()
+data=get_options.arg_parse()
+config = GetVar(getattr(data,"tenant"))
 var_ = GetConfig()
 log = Logger()
 test = RunInstancesTest()
-get_options = Options()
 
-
-data=get_options.arg_parse()
-
-
+print config.name
 def runTest1():
-    
     if test.preTestCheck(config)!=None:
         msg = "Pre Check passed, running instances test"
         log.log_data(config.log_file,"INFO")
@@ -41,11 +35,10 @@ def runTest1():
         else:
             msg = "Pre Check failed, test halted"
             raise SystemExit
-
-   
+  
 
 def runTest2():
-  
+
     if test.preTestCheck(config)!=None:
         msg = "Pre Check passed, running instances test"
         log.log_data(config.log_file,"INFO")
@@ -61,17 +54,16 @@ def runTest2():
     else:
         msg = "Pre Check failed,test halted"
         raise SystemExit
-  
+
 
 def runTest3():
     raise SystemExit
 
     
-select = {0 : runTest1,
+select = { 0 : runTest1,
            1 : runTest2,
            2 : runTest3,          
-}
-
+         }
 
 
 
