@@ -26,20 +26,22 @@ class RunInstancesTest():
             self.log.log_data(obj.log_file,msg,"INFO")
             msg="Flavour type: %s, Flavour id: %s" %(flavour_info.name,flavour_info.id)
             self.log.log_data(obj.log_file,msg,"INFO")
+            return True
         else:
             msg="Flavour"
             msg="Image status returned as none, pre-flight check test failed!, exiting test"
             self.log.log_data(obj.log_file,msg,"ERROR")
             raise SystemExit
+        
   
 
-    def runTest(self,obj):
+    def runTest(self,obj,test_name):
         
         startTime = time.time()
         
      
         client = self.nova_.createNovaConnection(obj)
-        test_name = self.helper._randomName()
+        
         
         msg="Instance Run Test %s started" % test_name
         self.log.log_data(obj.log_file,msg,"INFO")
@@ -48,7 +50,7 @@ class RunInstancesTest():
         msg="Keypair created"
         self.log.log_data(obj.log_file,msg,"INFO")
         
-        stat = self.helper.writeFiles(obj.ssh_key_name,keypair.private_key)
+        stat = self.helper.writeFiles(obj.ssh_key,keypair.private_key)
         msg="SSH key written to file"
         self.log.log_data(obj.log_file,msg,"INFO")
         
@@ -67,7 +69,7 @@ class RunInstancesTest():
         self.nova_.createSecurityGroupRules(security_group.id,'tcp','22','22',client)
         msg = "Rules 'tcp', '22' 0.0.0.0/0 added"
         self.log.log_data(obj.log_file,msg,"INFO")
-        time.sleep(obj.timeout)
+        time.sleep(int(obj.timeout))
         
         
         flavour_info = self.nova_.getFlavour(obj.flavour_name,client)
@@ -95,43 +97,63 @@ class RunInstancesTest():
             self.log.log_data(obj.log_file,msg,"INFO")
             
             if self.helper.checkPortAlive(vm_post_run[1][0],int(obj.timeout),22)==True:
-                msg = "Port is up and responding, proceeding to run file check"
+                msg = "Port is up and responding, proceeding to run file check in the next 10 seconds"
                 self.log.log_data(obj.log_file,msg,"INFO")
-            
+                time.sleep(int(obj.timeout))
+                
+                msg = "Running file check"
+                self.log.log_data(obj.log_file,msg,"INFO")
+              
                 if self.helper.fileCheck(vm_post_run[1][0],obj.image_username,obj.cp_file,obj.tmp_dir,obj.ssh_key)==True:
-                    msg = "Running file check"
+                    msg = "File Check completed...passed"
                     self.log.log_data(obj.log_file,msg,"INFO")
-                    self.nova_.rebootInstances(vm_post_run[0])
+                    
                     msg = "Rebooting instances"
                     self.log.log_data(obj.log_file,msg,"INFO")
+                    self.nova_.rebootInstances(vm_post_run[0])
                     
-                    if self.helper.checkPortAlive(vm_post_run[1][0],int(obj.timeout),22)==True:
+                    if self.helper._pollStatus(obj.timeout,run_instances.id,'ACTIVE',10,client)==True:
                         
-                        msg = "Reboot OK, Test Passed"
-                        self.log.log_data(obj.log_file,msg,"INFO")
-                        return vm_post_run[0]
+                        if self.helper.checkPortAlive(vm_post_run[1][0],int(obj.timeout),22)==True:
+                        
+                            msg = "Reboot OK,Instances test took %.2f to complete" % (time.time()-startTime)
+                            self.log.log_data(obj.log_file,msg,"INFO")
+                            print msg
+                            return vm_post_run[0]
                     
+                        else:
+                            msg = "Reboot Failed, Exiting Test"
+                            self.log.log_data(obj.log_file,msg,"ERROR")
+                            print msg
+                            return None
                     else:
-                        msg = "Reboot Failed, Exiting Test"
+                        msg = "Task state did not change, stuck in reboot"
                         self.log.log_data(obj.log_file,msg,"ERROR")
-                        raise SystemExit
+                        print msg
+                        return None
+                        
                     
                 
                 else:
                     msg = "File Check failed, exiting  Test"
                     self.log.log_data(obj.log_file,msg,"ERROR")
-                    raise SystemExit
+                    print msg
+                    return None
                     
             
             
             else:
                 msg = "Port is not responding after %s, possible timeout from boot" % (time.time()- startTime)
                 self.log.log_data(obj.log_file,msg,"ERROR")
+                print msg
+                return None
                 
             
             
         else:
-            msg = "Timeout from build, stuck in %r for more than %r" % (run_instances.status, (time.time()-startTime))
+            msg = "Timeout from build, stuck in %r for more than %.2f" % (run_instances.status, (time.time()-startTime))
             self.log.log_data(obj.log_file,msg,"ERROR") 
-            raise SystemExit   
-        
+            print msg
+            return None
+              
+    

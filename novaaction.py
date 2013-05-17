@@ -1,12 +1,16 @@
+
 from novaclient.v1_1 import client
+from novaclient.exceptions import ClientException
+
+
 
 class NovaAction():
     def createNovaConnection(self,obj):
         try:
+            
             conn = client.Client(username=obj.username,api_key=obj.passwd,project_id=obj.name,auth_url=obj.url)
   
-            
-        except Exception,e:
+        except ClientException,e:
             return "Error %s" % e 
     
         return conn
@@ -16,10 +20,6 @@ class NovaAction():
         keypair = client.keypairs.create(name,pub_key)
         return keypair
     
-    def deleteKeypair(self,name,client):
-        keypair = client.keypairs.delete(name)
-        return 0
-    
     def createSecurityGroup(self,name,client):
         description = 'security group for test '+name
         security_group = client.security_groups.create(name,description)
@@ -28,9 +28,6 @@ class NovaAction():
     def createSecurityGroupRules(self,sg_id,proto,port_to,port_frm,client):
         security_grouprules = client.security_group_rules.create(sg_id,proto,port_to,port_frm)
         return security_grouprules
-    
-    def removeSecurityGroupRules(self,sg_name,client):
-        security_group = client.security_groups.delete(sg_name)
         
     def getImageInfo(self,image_id,type_,client):
         for i in client.images.list():
@@ -49,6 +46,14 @@ class NovaAction():
                     return i
                 else:
                     return 1
+    def getSecurityGroup(self,name,client):
+        for sg in client.security_groups.list():
+            if sg.name==unicode(name):
+                return sg.id
+            else:
+                return False
+                
+        
     def runInstances(self,name,image_id,flavor,keypair_name,sg_name,client,user_data=None,placement=None):
         if user_data==None:
             run_instances = client.servers.create(name,image_id,flavor,key_name=keypair_name,
@@ -56,15 +61,11 @@ class NovaAction():
             return run_instances
     def rebootInstances(self,vm):
         if vm.reboot():
-            return 0
+            return True
     def createSnapshot(self,name,vm_id,client):
         snapshot_id=client.servers.create_image(vm_id,"snap-"+name)
         return snapshot_id
-    
-    def deleteInstances(self,vm_id,client):
-        delete_instances = client.servers.delete(vm_id)
-        
-           
+               
                 
     def getInstancesInfo(self,vm_id,client):
             vm_ip=""
@@ -78,6 +79,39 @@ class NovaAction():
                       
                         
                     return i,ip_address
+                
+    def terminateInstances(self,vm_id,client):
+            client.servers.delete(vm_id)
+            return True
+        
+        
+        
+    def deleteSnapshot(self,snapshot,client):
+            image = self.getImageInfo(snapshot,False,client)
+            print snapshot
+            print type(snapshot)
+            print image
+            print type(image)
+            image.delete()
+            return True
+                
+            
+    def removeSecurityGroupRules(self,sg_name,client):
+        
+        sg_id = self.getSecurityGroup(sg_name, client)
+        client.security_groups.delete(sg_id)
+        return True
+    
+    def deleteKeypair(self,name,client):
+        keypair = client.keypairs.delete(name)
+        return True
+        
+         
+            
+            
+
+        
+                                             
  
 
                 

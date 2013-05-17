@@ -1,6 +1,4 @@
 import os
-import sys
-import getpass
 import socket
 import paramiko
 import subprocess
@@ -49,7 +47,6 @@ class GetConfig():
         return 0
         
     def connectSSH(self,hostname,user,key_rc):
-        config = SSHConfig()
         #config.parse(open(ssh_config))
         #o = config.lookup(hostname)
         try: 
@@ -122,6 +119,16 @@ class GetConfig():
     def _pollStatus(self,timeout,poll_item,state,count_limit,client):
         count=0
         while NovaAction().getInstancesInfo(poll_item,client)[0].status!=state:
+            if count!=count_limit:
+                time.sleep(int(timeout))
+                count=count+1
+            else:
+                return False
+        return True
+    
+    def _pollTaskState(self,timeout,poll_item,count_limit,client):
+        count=0
+        while NovaAction().getInstancesInfo(poll_item,client)[0].status!='NULL':
             if count!=count_limit:
                 time.sleep(int(timeout))
                 count=count+1

@@ -23,7 +23,7 @@ class GetVar(object):
         self.tmp_dir = helper.process_config('file_check','tmp_dir')
         self.cell = helper.process_config('cell','location')
         self.scheduler={'cell':self.cell}
-        self.ssh_key = self.work_directory+"/"+self.ssh_key_name
+        self.ssh_key = self.work_directory+self.ssh_key_name
         self.log_file = helper.process_config('log_file','file')
         
 

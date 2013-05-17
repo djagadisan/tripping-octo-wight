@@ -9,6 +9,7 @@ import novaaction
 from util import GetConfig
 from novaaction import NovaAction
 from novaclient.v1_1 import client 
+from config_data import GetVar
 
 class TESTNOVA():
     
@@ -27,6 +28,21 @@ class TESTNOVA():
 
 __init__='main'
 
+dict ={'sg':'xxxxx','keypair':'key'}
+
+
+
+config = GetVar('deven')
+images_test = NovaAction()
+#image='b025abeb-d07c-4dfa-9b31-ad791203a101'
+
+#results = images_test.getImageInfo(image,False, images_test.createNovaConnection(config))
+#print results
+#images_test.deleteSnapshot(image, images_test.createNovaConnection(config))
+seg = '07DVXB-160513173723'
+print images_test.getSecurityGroup(seg,images_test.createNovaConnection(config))
+
+'''
 helper_ = GetConfig()
 nova_action = NovaAction()
 
@@ -153,5 +169,5 @@ else:
 
 #vm_id='5888c8cc-d9f3-44d0-8aae-0c21650daec4'
 #nova_action.deleteInstances(vm_id,client)
-
+'''
 
