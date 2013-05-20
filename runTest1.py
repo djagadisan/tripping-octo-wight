@@ -31,7 +31,7 @@ class RunTest1():
                 self.log.log_data(config.log_file,msg,"INFO")
                 print msg
                 snap = RunSnapshot().runSnapshot(config,run_result,test_name)
-                if snap!=None:
+                if snap[1]!=False:
                     msg = "Snapshot Test passed"
                     self.log.log_data(config.log_file,msg,"INFO")
                     print msg
@@ -52,7 +52,7 @@ class RunTest1():
                     msg = "Removing Snapshot"
                     self.log.log_data(config.log_file,msg,"INFO")
                     print msg
-                    self.clear.removeSnapshot(config, snap)
+                    self.clear.removeSnapshot(config, snap[0])
                 
                 
                     msg = "Removing Security Groups and Keypair in next 10 seconds"
@@ -78,7 +78,7 @@ class RunTest1():
                     msg = "Removing Failed Snapshot"
                     self.log.log_data(config.log_file,msg,"INFO")
                     print msg
-                    self.clear.removeSnapshot(config, snap)
+                    self.clear.removeSnapshot(config, snap[0])
                     
                     msg = "Terminating Instances"
                     self.log.log_data(config.log_file,msg,"INFO")
@@ -90,9 +90,11 @@ class RunTest1():
                     misc = {'sg':test_name,'kp':test_name}
                     time.sleep(int(config.timeout))
                     self.clear.removeMisc(config,misc)
+                    print msg
                 
                     msg = "Clean Up complete, exiting test"
                     self.log.log_data(config.log_file,msg,"INFO")
+                    print msg
                     
                     
                     raise SystemExit

@@ -88,12 +88,8 @@ class NovaAction():
         
     def deleteSnapshot(self,snapshot,client):
             image = self.getImageInfo(snapshot,False,client)
-            print snapshot
-            print type(snapshot)
-            print image
-            print type(image)
             image.delete()
-            return True
+
                 
             
     def removeSecurityGroupRules(self,sg_name,client):

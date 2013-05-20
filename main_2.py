@@ -9,6 +9,10 @@ get_options = Options()
 data=get_options.arg_parse()
 config = GetVar(getattr(data,"tenant"))
 
+print data
+print config.cell
+
+'''
 if getattr(data,'all')==True and getattr(data,'instances')==False:
     RunTest1().runTest1(config)
 
@@ -20,7 +24,7 @@ else:
     print "Invalid Selection,exit test"
     raise SystemExit
 
-
+'''
 
 
 

@@ -6,7 +6,11 @@ from util import GetConfig
 
 class GetVar(object):
     
-    def __init__(self,infra,over_ride=None):
+    def __init__(self,infra,cell=None):
+        
+        
+        
+        
         helper = GetConfig()
         
         self.username = helper.process_config(infra,'user')
@@ -25,6 +29,21 @@ class GetVar(object):
         self.scheduler={'cell':self.cell}
         self.ssh_key = self.work_directory+self.ssh_key_name
         self.log_file = helper.process_config('log_file','file')
+        
+        
+        @property
+        
+        @property
+        def cell(self):
+            if cell!=None:
+                self.cell = helper.process_config('cell','location')
+            else: 
+                self.cell
+                
+            return self.cell
+                
+        
+        
         
 
     
