@@ -164,43 +164,4 @@ class GetConfig():
             else:
                 return False 
         return True
-            
-        
-        
-            
-    #def _createSSHKey(self,name):
-        
-    
-        
-        
-        
-    
-    #def _pollStatus(self):
-        
-                    
-        
-    '''    
-    def runCommand(self,ssh_session,cmd=None,_type=None,local_file=None):
-        if _type==1:
-            stdin, stdout, stderr = ssh_session.exec_command(cmd)
-            return True
-        elif _type==2:
-            stdin, stdout, stderr = ssh_session.exec_command(cmd)
-            _close = stdout.read()
-            return _close
-        elif _type==3:
-            _scp=ssh_session.open_sftp()
-            _scp.put(local_file,'test0')
-            _scp.close()
-            return True
-        elif _type==4:
-            _scp=ssh_session.open_sftp()
-            _scp.get('test01',local_file)
-            _scp.close()
-            return True
-        elif _type==5:
-            _return=subprocess.Popen(['md5sum',local_file],shell=False,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-            return _return.communicate()[0].split()            
-        else:
-            ssh_session.close()
-'''
+

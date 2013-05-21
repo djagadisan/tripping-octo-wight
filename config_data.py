@@ -29,6 +29,7 @@ class GetVar(object):
         self.scheduler={'cell':self.cell}
         self.ssh_key = self.work_directory+self.ssh_key_name
         self.log_file = helper.process_config('log_file','file')
+        self.csv_file = helper.process_config('csv_file','file')
         
         class __metaclass__(type):
             @property 

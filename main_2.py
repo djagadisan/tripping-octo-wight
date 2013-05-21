@@ -2,7 +2,7 @@ from config_data import GetVar
 from options import Options
 from runTest1 import RunTest1
 from runTest2 import RunTest2
-from test_box import TestBox
+
 
 
 __init__ = 'main'

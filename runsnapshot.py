@@ -37,6 +37,7 @@ class RunSnapshot():
             else:
                 msg = "Snapshot failed, did not reach active state after %.2f seconds" % (time.time()-startTime) 
                 self.log.log_data(obj.log_file,msg,"ERROR")
+                print msg
                 return vm_snap,False
                         
         msg = "Snapshot %s is ok, test took %.2f to complete" % (vm_snap,(time.time()-startTime))

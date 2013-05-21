@@ -7,7 +7,7 @@ import os
 class Logger():
     
     def log_data(self,log_file,info,type):
-        if os.path.exists(log_file) is None:
+        if os.path.exists(log_file) is False:
             try:
                 _log = open(log_file, 'w+')
             except IOError,e:

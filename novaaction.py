@@ -1,4 +1,5 @@
-
+import sys
+import locale
 from novaclient.v1_1 import client
 from novaclient.exceptions import ClientException
 
@@ -47,11 +48,19 @@ class NovaAction():
                 else:
                     return 1
     def getSecurityGroup(self,name,client):
+        
+        grp_name=None
+        
         for sg in client.security_groups.list():
-            if sg.name==unicode(name):
-                return sg.id
-            else:
-                return False
+            
+            encoding = (locale.getpreferredencoding() or
+            sys.stdin.encoding or
+            'UTF-8')
+            sg.name = sg.name.encode(encoding)
+            if name==sg.name:
+                grp_name=sg.id
+            
+        return grp_name
                 
         
     def runInstances(self,name,image_id,flavor,keypair_name,sg_name,client,user_data=None,placement=None):
@@ -93,10 +102,12 @@ class NovaAction():
                 
             
     def removeSecurityGroupRules(self,sg_name,client):
-        
-        sg_id = self.getSecurityGroup(sg_name, client)
-        client.security_groups.delete(sg_id)
-        return True
+        sg_id = self.getSecurityGroup(sg_name,client)
+        if sg_id!=None:
+            client.security_groups.delete(sg_id)
+            return True
+        else:
+            return False
     
     def deleteKeypair(self,name,client):
         keypair = client.keypairs.delete(name)

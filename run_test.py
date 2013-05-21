@@ -6,6 +6,7 @@ import unicodedata
 import time
 import util
 import novaaction
+from write_to_csv import WriteCSV 
 from util import GetConfig
 from novaaction import NovaAction
 from novaclient.v1_1 import client 
@@ -28,6 +29,36 @@ class TESTNOVA():
 
 __init__='main'
 
+config = GetVar('nectar-tenant')
+
+data=['1','2','3','4','5','6']
+print data
+write_data = WriteCSV().createCSVFile(config.csv_file)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+'''
+test_ = NovaAction()
+client=test_.createNovaConnection(config)
+test_.removeSecurityGroupRules(secure_group, client)
+'''
+
+
+
+'''
 dict ={'sg':'xxxxx','keypair':'key'}
 
 
@@ -42,7 +73,7 @@ images_test = NovaAction()
 seg = '07DVXB-160513173723'
 print images_test.getSecurityGroup(seg,images_test.createNovaConnection(config))
 
-'''
+
 helper_ = GetConfig()
 nova_action = NovaAction()
 
