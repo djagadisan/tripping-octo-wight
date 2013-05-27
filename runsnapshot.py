@@ -31,18 +31,20 @@ class RunSnapshot():
                     time.sleep(10)
                     count=count+1
                 elif self.snap.getImageInfo(vm_snap,True,client)==None:
+                    time_comp = (time.time()-startTime)
                     msg = "Snapshot Failed, most likely snapshot is killed by glance"
                     self.log.log_data(obj.log_file,msg,"ERROR")
                     return vm_snap,False
             else:
-                msg = "Snapshot failed, did not reach active state after %.2f seconds" % (time.time()-startTime) 
+                time_comp = (time.time()-startTime)
+                msg = "Snapshot failed, did not reach active state after %.2f seconds" % time_comp 
                 self.log.log_data(obj.log_file,msg,"ERROR")
                 print msg
-                return vm_snap,False
-                        
-        msg = "Snapshot %s is ok, test took %.2f to complete" % (vm_snap,(time.time()-startTime))
+                return vm_snap,False,time_comp
+        time_comp = ((time.time()-startTime))                 
+        msg = "Snapshot is ok, test took %.2f to complete" % time_comp
         self.log.log_data(obj.log_file,msg,"INFO")
         print msg
-        return vm_snap,True
+        return vm_snap,True,time_comp
            
         

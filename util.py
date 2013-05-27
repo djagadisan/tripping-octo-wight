@@ -1,4 +1,5 @@
 import os
+import logging
 import socket
 import paramiko
 import subprocess
@@ -9,7 +10,7 @@ import time
 from ConfigParser import SafeConfigParser
 from paramiko import SSHClient, SSHConfig
 from novaaction import NovaAction
-
+from paramiko.ssh_exception import SSHException
 
 
 class Alarm():
@@ -21,9 +22,15 @@ class Alarm():
 
 
 class GetConfig():
-    parser = SafeConfigParser()
-    config_file = os.getcwd() +"/config.ini"
-    parser.read(config_file)
+    try:
+        config_file = "/tmp/config.ini"
+        with open(config_file):
+            parser = SafeConfigParser()
+            config_file = "/tmp/config.ini"
+            parser.read(config_file)
+    except IOError:
+            print "Error!, Config File Not Found at (/tmp/config.ini)"
+            raise SystemExit
     
     def process_config(self,section,option):
         for section_name in self.parser.sections():
@@ -47,15 +54,15 @@ class GetConfig():
         return 0
         
     def connectSSH(self,hostname,user,key_rc):
-        #config.parse(open(ssh_config))
-        #o = config.lookup(hostname)
+        #TODO, disable ssh loggging by paramiko properlys
+        logging.getLogger("paramiko").setLevel(logging.WARNING)
         try: 
             ssh_client = paramiko.SSHClient()
             ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             ssh_client.connect(hostname, username=user, key_filename=key_rc)
             return ssh_client
-        except BaseException, e:
-            return e    
+        except SSHException:
+            return False   
         
 
     def runCommand(self,ssh_session,cmd=None,_type=None,local_file=None):
@@ -63,6 +70,7 @@ class GetConfig():
             stdin, stdout, stderr = ssh_session.exec_command(cmd)
             return True
         elif _type==2:
+            
             stdin, stdout, stderr = ssh_session.exec_command(cmd)
             _close = stdout.read()
             return _close
@@ -135,21 +143,35 @@ class GetConfig():
             else:
                 return False
         return True
+    
+    def _pollInstancesTerminated(self,timeout,count_limit,vm_id,client):
+        count=0
+        while NovaAction().getInstancesInfo(vm_id,client)!=None:
+            if count!=count_limit:
+                time.sleep(int(timeout))
+                count=count+1
+            else:
+                return False
+        return True
+            
             
     def fileCheck(self,ip_address,user,test_file,work_directory,key_rc):
         cmd1='dd if=/dev/zero of=test01 bs=1024K count=50'
-        cmd2="md5sum test01 | cut -d' ' -f1"
-        if os.path.exists(work_directory+"test01"):
-            os.remove(work_directory+"test01")             
+        cmd2="md5sum test01 | cut -d' ' -f1"             
         ssh_session=self.connectSSH(ip_address, user, key_rc)
-        self.runCommand(ssh_session, cmd=cmd1,_type=1)
-        time.sleep(10)
-        check_sum = self.runCommand(ssh_session,cmd=cmd2,_type=2).rstrip("\n")
-        self.runCommand(ssh_session,_type=3,local_file=test_file)
-        self.runCommand(ssh_session,_type=4,local_file=work_directory+"test01")
-        check_sum_local = self.runCommand(ssh_session,local_file=work_directory+"test01",_type=5)
-        if str(check_sum)==str(check_sum_local[0]):
-            return True
+        if ssh_session!=False:
+            self.runCommand(ssh_session, cmd=cmd1,_type=1)
+            time.sleep(10)
+            check_sum = self.runCommand(ssh_session,cmd=cmd2,_type=2).rstrip("\n")
+            self.runCommand(ssh_session,_type=3,local_file=test_file)
+            self.runCommand(ssh_session,_type=4,local_file=work_directory+"test01")
+            check_sum_local = self.runCommand(ssh_session,local_file=work_directory+"test01",_type=5)
+            if str(check_sum)==str(check_sum_local[0]):
+                if os.path.exists(work_directory+"test01"):
+                    os.remove(work_directory+"test01")
+                return True
+            else:
+                return False
         else:
             return False
   
@@ -164,4 +186,35 @@ class GetConfig():
             else:
                 return False 
         return True
+    
+    def getrunTime(self,_type=None):
+        
+        if _type=='time':
+            return time.time()
+        else:
+            return datetime.datetime.now().strftime("%d%m%y%H%M%S")
+    
+    
+    def sampleFile(self,action,sample_file):
+        if action=='create':
+            try:
+                out_fd = open(sample_file,'w+')
+                cmd=['/usr/bin/head', '-c','2048000','/dev/urandom'] 
+                run_cmd = subprocess.Popen(cmd,shell=False,stdout=out_fd,stderr=subprocess.PIPE)
+                run_cmd.communicate()
+            except IOError,e:
+                print "Error, Unable to create data file to upload"
+                raise SystemExit
+        else:
+            try:
+                if os.path.exists(sample_file):
+                    os.remove(sample_file)
+            except IOError,e:
+                return "Error",e 
+        
+        
+        
+        
+         
+         
 

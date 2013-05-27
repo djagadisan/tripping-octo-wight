@@ -11,12 +11,14 @@ from util import GetConfig
 from novaaction import NovaAction
 from novaclient.v1_1 import client 
 from config_data import GetVar
+import datetime
 
 class TESTNOVA():
     
     def createConnection(self,_user,_key,_project_id,_auth_url):
         try:
-            conn = client.Client(username=_user,api_key=_key,project_id=_project_id,auth_url=_auth_url)
+            #conn = client.Client(username=_user,api_key=_key,project_id=_project_id,auth_url=_auth_url)
+            
             
         except Exception,e:
             return "Error %s" % e 
@@ -26,14 +28,44 @@ class TESTNOVA():
         
 
 
+    def TestBool(self,sent_stuff):
+        
+        var_test=1
+        if sent_stuff=="ok":
+            return True,sent_stuff,var_test
+        else:
+            return False,sent_stuff,var_test
+        
+        
+        
+
 
 __init__='main'
 
-config = GetVar('nectar-tenant')
 
-data=['1','2','3','4','5','6']
-print data
-write_data = WriteCSV().createCSVFile(config.csv_file)
+
+vm_id='18d23802-14d4-4f87-a9b3-a68e90a86a08'
+#vm_id='d9734166-5a02-464b-ae21-78c0a1622b37'
+
+
+
+
+config = GetVar('nectar-tenant')
+nov=NovaAction()
+info = GetConfig() 
+#client= nov.createNovaConnection(config)
+#data1=nov.getInstancesInfo(instances_id,client)
+count_limit=5
+#print info._pollInstancesTerminated(config.timeout,count_limit, vm_id, client)
+#data=['1','2','3','4','5','6']
+#print data
+#write_data = WriteCSV().createCSVFile(config.csv_file,data)
+#now = 
+
+#print datetime.datetime.now().strftime("%d%m%y%H%M%S")
+print config.cp_file
+print info.sampleFile(config.cp_file)
+ 
 
 
 

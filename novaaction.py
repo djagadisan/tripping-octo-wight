@@ -1,20 +1,20 @@
 import sys
 import locale
+import time
 from novaclient.v1_1 import client
-from novaclient.exceptions import ClientException
+from novaclient.exceptions import *
 
 
 
 class NovaAction():
     def createNovaConnection(self,obj):
-        try:
-            
-            conn = client.Client(username=obj.username,api_key=obj.passwd,project_id=obj.name,auth_url=obj.url)
+        
+            try:
+                conn = client.Client(username=obj.username,api_key=obj.passwd,project_id=obj.name,auth_url=obj.url)
+                return conn
   
-        except ClientException,e:
-            return "Error %s" % e 
-    
-        return conn
+            except ClientException:
+                return False
     
     def createKeypair(self,name,client):
         pub_key = None
@@ -29,17 +29,25 @@ class NovaAction():
     def createSecurityGroupRules(self,sg_id,proto,port_to,port_frm,client):
         security_grouprules = client.security_group_rules.create(sg_id,proto,port_to,port_frm)
         return security_grouprules
-        
+ 
     def getImageInfo(self,image_id,type_,client):
-        for i in client.images.list():
-            if i.id==unicode(image_id):
-                if i!=None:
-                    if type_==True:
-                        return i.status
-                    elif type_==False:
-                        return i
-                else:
-                    return False
+        count = 0
+        if count!=10: 
+            try: 
+                for i in client.images.list():
+                    if i.id==unicode(image_id):
+                        if i!=None:
+                            if type_==True:
+                                return i.status
+                            elif type_==False:
+                                return i
+                        else:
+                            return False
+            except Exception,ClientException:
+                count=count+1
+        else:
+            return False
+        
     def getFlavour(self,flavour_name,client):
         for i in client.flavors.list():
             if i.name==unicode(flavour_name):
@@ -89,6 +97,7 @@ class NovaAction():
                         
                     return i,ip_address
                 
+                
     def terminateInstances(self,vm_id,client):
             client.servers.delete(vm_id)
             return True
@@ -96,21 +105,51 @@ class NovaAction():
         
         
     def deleteSnapshot(self,snapshot,client):
+        
+        count = 0
+        
+        if count!=10:
             image = self.getImageInfo(snapshot,False,client)
-            image.delete()
+            if image!=False:
+                while True or count!=10:
+                    try:
+                        image.delete()
+                        return True
+                    except Exception:
+                        time.sleep(5)
+                        count=count+1    
+                        
+            else:
+                count=count+1
+        else:
+            return False
+                
 
                 
             
     def removeSecurityGroupRules(self,sg_name,client):
-        sg_id = self.getSecurityGroup(sg_name,client)
-        if sg_id!=None:
-            client.security_groups.delete(sg_id)
-            return True
-        else:
-            return False
+            count =0
+
+            if count!=10:
+                sg_id = self.getSecurityGroup(sg_name,client)
+                if sg_id!=None:
+                    while True or count!=10:
+                        try:
+                            client.security_groups.delete(sg_id)
+                            return True
+                        except BadRequest:
+                            time.sleep(10)
+                            count=count+1
+                else:
+                    count=count+1
+            else:
+                return False
+
+            
+                
     
     def deleteKeypair(self,name,client):
-        keypair = client.keypairs.delete(name)
+        client.keypairs.delete(name)
         return True
         
          

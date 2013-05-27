@@ -1,10 +1,6 @@
-import os
-import sys
 import time
-import datetime
 from util import GetConfig
 from novaaction import NovaAction
-
 from logger import Logger
 
 
@@ -21,7 +17,9 @@ class RunInstancesTest():
         client = self.nova_.createNovaConnection(obj)
         image_status = self.nova_.getImageInfo(obj.image_id,False,client)
         flavour_info = self.nova_.getFlavour(obj.flavour_name,client)
-        if image_status!=None and flavour_info!=None:
+        data_file = self.helper.sampleFile('create', obj.cp_file)
+        
+        if image_status!=None and flavour_info!=None and data_file==None:
             msg="Image: %s (%s), status: %s" % (image_status.name,image_status.id, image_status.status)
             self.log.log_data(obj.log_file,msg,"INFO")
             msg="Flavour type: %s, Flavour id: %s" %(flavour_info.name,flavour_info.id)
@@ -31,7 +29,7 @@ class RunInstancesTest():
             msg="Flavour"
             msg="Image status returned as none, pre-flight check test failed!, exiting test"
             self.log.log_data(obj.log_file,msg,"ERROR")
-            raise SystemExit
+            return False
         
   
 
@@ -115,22 +113,22 @@ class RunInstancesTest():
                     if self.helper._pollStatus(obj.timeout,run_instances.id,'ACTIVE',10,client)==True:
                         
                         if self.helper.checkPortAlive(vm_post_run[1][0],int(obj.timeout),22)==True:
-                        
-                            msg = "Reboot OK,Instances test took %.2f to complete" % (time.time()-startTime)
+
+                            msg = "Reboot OK"
                             self.log.log_data(obj.log_file,msg,"INFO")
                             print msg
-                            return vm_post_run[0]
+                            return True,vm_post_run[0],(time.time()-startTime)
                     
                         else:
                             msg = "Reboot Failed, Exiting Test"
                             self.log.log_data(obj.log_file,msg,"ERROR")
                             print msg
-                            return None
+                            return False,vm_post_run[0],(time.time()-startTime)
                     else:
                         msg = "Task state did not change, stuck in reboot"
                         self.log.log_data(obj.log_file,msg,"ERROR")
                         print msg
-                        return None
+                        return False,vm_post_run[0],(time.time()-startTime)
                         
                     
                 
@@ -138,15 +136,15 @@ class RunInstancesTest():
                     msg = "File Check failed, exiting  Test"
                     self.log.log_data(obj.log_file,msg,"ERROR")
                     print msg
-                    return None
+                    return False,vm_post_run[0],(time.time()-startTime)
                     
             
             
             else:
-                msg = "Port is not responding after %s, possible timeout from boot" % (time.time()- startTime)
+                msg = "Port is not responding after %.2f, possible timeout from boot" % (time.time()- startTime)
                 self.log.log_data(obj.log_file,msg,"ERROR")
                 print msg
-                return None
+                return False,vm_post_run[0],(time.time()- startTime)
                 
             
             
@@ -154,6 +152,6 @@ class RunInstancesTest():
             msg = "Timeout from build, stuck in %r for more than %.2f" % (run_instances.status, (time.time()-startTime))
             self.log.log_data(obj.log_file,msg,"ERROR") 
             print msg
-            return None
+            return False,vm_post_run[0],(time.time()- startTime)
               
     

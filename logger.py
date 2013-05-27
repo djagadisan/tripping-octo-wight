@@ -1,12 +1,11 @@
 import logging
-import sys
 import os
 
 
 
 class Logger():
     
-    def log_data(self,log_file,info,type):
+    def log_data(self,log_file,info,_type):
         if os.path.exists(log_file) is False:
             try:
                 _log = open(log_file, 'w+')
@@ -21,13 +20,15 @@ class Logger():
             logging.info(info)
             
         elif type=="DEBUG":
-            logging.error(info)
+            logging.debug(info)
         
         elif type=="ERROR":
             logging.error(info)
             
-        else:
+        elif type=="WARNING":
             logging.warning(info)
+        else:
+            logging.info(info)
         
         
         

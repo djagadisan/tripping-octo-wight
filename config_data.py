@@ -33,11 +33,11 @@ class GetVar(object):
         
         class __metaclass__(type):
             @property 
-            def cell_(cls):
+            def cell_(self,cls):
                 return cls.cell
             
             @cell_.setter
-            def cell_(cls,cell_def):
+            def cell_(self,cls,cell_def):
                 cls.cell = cell_def
  
 
