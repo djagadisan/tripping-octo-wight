@@ -72,9 +72,11 @@ class NovaAction():
                 
         
     def runInstances(self,name,image_id,flavor,keypair_name,sg_name,client,user_data=None,placement=None):
-        if user_data==None:
+        hints={'cell':placement}
+
+	if user_data==None:
             run_instances = client.servers.create(name,image_id,flavor,key_name=keypair_name,
-                                              security_groups=sg_name,scheduler_hints=placement)
+                                              security_groups=sg_name,scheduler_hints=hints)
             return run_instances
     def rebootInstances(self,vm):
         if vm.reboot():

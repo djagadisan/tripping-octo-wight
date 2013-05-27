@@ -23,7 +23,7 @@ class RunTest1():
     def runTest1(self,config):
         
         test_name = self.var_._randomName()
-        print "Running Instances and Snapshot Test:%s" % test_name
+        print "Running Instances and Snapshot Test:%s on cell" % (test_name,config.cell)
         
         if self.test.preTestCheck(config)!=False:
             

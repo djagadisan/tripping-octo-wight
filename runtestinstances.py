@@ -76,8 +76,8 @@ class RunInstancesTest():
         self.log.log_data(obj.log_file,msg,"INFO")
         
         
-        
-        run_instances = self.nova_.runInstances(test_name,obj.image_id,flavour_info.id,keypair.name,security_group.name.split(','),client,placement=obj.scheduler)
+       
+        run_instances = self.nova_.runInstances(test_name,obj.image_id,flavour_info.id,keypair.name,security_group.name.split(','),client,placement=obj.cell)
         
         if run_instances!=None:
              
