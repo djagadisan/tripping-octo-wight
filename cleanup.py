@@ -33,7 +33,7 @@ class CleanUp():
                     msg="SSH Key removed"
                     self.log.log_data(obj.log_file,msg,"INFO")
                     
-                    self.helper.sampleFile('remove',obj.cp_file)
+                    self.helper.sampleFile('remove',obj.data_file)
                     return True
                 else:
                     return False

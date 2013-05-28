@@ -11,14 +11,14 @@ class RunSnapshot():
     log = Logger()
     helper = GetConfig()
     
-    def runSnapshot(self, obj,vm_obj,test_name):
+    def runSnapshot(self, obj,vm_obj):
         
         startTime = time.time()
         
         msg = "Snapshot Test started"
         self.log.log_data(obj.log_file,msg,"INFO")
         client = self.snap.createNovaConnection(obj)
-        vm_snap = self.snap.createSnapshot(test_name,vm_obj.id,client)
+        vm_snap = self.snap.createSnapshot(obj.test_name,vm_obj.id,client)
         
         msg = "Snapshot requested on VM-:%s" % vm_obj.id
         self.log.log_data(obj.log_file,msg,"INFO")

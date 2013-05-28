@@ -54,8 +54,8 @@ class GetConfig():
         return 0
         
     def connectSSH(self,hostname,user,key_rc):
-        #TODO, disable ssh loggging by paramiko properlys
-        logging.getLogger("paramiko").setLevel(logging.WARNING)
+        #TODO, disable ssh logging by paramiko properly
+        #logging.getLogger("paramiko").setLevel(logging.WARNING)
         try: 
             ssh_client = paramiko.SSHClient()
             ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())

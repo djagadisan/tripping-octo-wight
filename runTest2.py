@@ -18,12 +18,13 @@ class RunTest2():
     startTime = time.time()
     run_time = datetime.datetime.now().strftime("%d%m%y%H%M%S")
     def runTest2(self,config):
-        test_name = self.var_._randomName()
-        print "Running Instances Test"
+        
+        
+        print "Running Instances Test:%s on cell %r" % (config.test_name,config.cell)
         if self.test.preTestCheck(config)!=None:
-            msg = "Pre Check passed, running instances test %s" % test_name
+            msg = "Pre Check passed, running instances test"
             self.log.log_data(config.log_file,msg,"INFO")
-            run_result = self.test.runTest(config,test_name)
+            run_result = self.test.runTest(config)
             if run_result[0]!=False:
                 msg = "Instances test passed"
                 self.log.log_data(config.log_file,msg,"INFO")
@@ -38,16 +39,17 @@ class RunTest2():
                 print msg
                 self.clear.removeInstances(config, run_result[1])
                 
-                msg = "Waiting for instances to be removed, before removing security group and key pair"
+                msg = "Removing security group and key pair"
                 self.log.log_data(config.log_file,msg,"INFO")
-                misc = {'sg':test_name,'kp':test_name}
+                misc = {'sg':config.test_name,'kp':config.test_name}
+                
                 if self.clear.removeMisc(config,misc,run_result[1])==True:
                     time_comp = time.time()-self.startTime
                     msg = "Clean Up complete, exiting test"
                     self.log.log_data(config.log_file,msg,"INFO")
                 
                     print msg  
-                    data_insert = [test_name,self.run_time,config.cell,run_result[2],'0','NA','NA',time_comp,'0']
+                    data_insert = [config.test_name,self.run_time,config.cell,run_result[2],'0','NA','NA',time_comp,'0']
                     WriteCSV().createCSVFile(config.csv_file, data_insert)
                     raise SystemExit
                 else:
@@ -55,7 +57,7 @@ class RunTest2():
                     msg = "Error, Unable to remove security group and key pair"
                     self.log.log_data(config.log_file,msg,"ERROR")
                     print msg
-                    data_insert = [test_name,self.run_time,config.cell,run_result[2],'0','NA','NA',time_comp,'1']
+                    data_insert = [config.test_name,self.run_time,config.cell,run_result[2],'0','NA','NA',time_comp,'1']
                     WriteCSV().createCSVFile(config.csv_file, data_insert)
                     raise SystemExit
             else:
@@ -73,13 +75,12 @@ class RunTest2():
                 print msg
                 self.clear.removeInstances(config, run_result[1])
                 
-                msg = "Removing Security Groups and Keypair in next 10 seconds"
+                msg = "Removing Security Groups and Keypair"
                 self.log.log_data(config.log_file,msg,"INFO")
-                misc = {'sg':test_name,'kp':test_name}
-                time.sleep(int(config.timeout))
+                misc = {'sg':config.test_name,'kp':config.test_name}
                 if self.clear.removeMisc(config,misc,run_result[1])==True:
                     time_comp = time.time()-self.startTime
-                    data_insert = [test_name,self.run_time,config.cell,run_result[2],'1','NA','NA',time_comp,'1']
+                    data_insert = [config.test_name,self.run_time,config.cell,run_result[2],'1','NA','NA',time_comp,'1']
                     WriteCSV().createCSVFile(config.csv_file, data_insert)
                     msg = "Clean Up complete, exiting test"
                     self.log.log_data(config.log_file,msg,"INFO")
@@ -88,7 +89,7 @@ class RunTest2():
                     msg = "Error, Unable to remove security group and key pair"
                     self.log.log_data(config.log_file,msg,"ERROR")
                     print msg
-                    data_insert = [test_name,self.run_time,config.cell,run_result[2],'0','NA','NA',time_comp,'1']
+                    data_insert = [config.test_name,self.run_time,config.cell,run_result[2],'0','NA','NA',time_comp,'1']
                     WriteCSV().createCSVFile(config.csv_file, data_insert)
                     raise SystemExit
                     
@@ -97,7 +98,7 @@ class RunTest2():
             msg = "Pre Check failed,test halted"
             self.log.log_data(config.log_file,msg,"ERROR")
             time_comp = self.var_.getrunTime('start')-self.var_.getrunTime(type)
-            data_insert = [test_name,self.run_time,config.cell,'F','1','NA','NA',time_comp,'1']
+            data_insert = [config.test_name,self.run_time,config.cell,'F','1','NA','NA',time_comp,'1']
             WriteCSV().createCSVFile(config.csv_file, data_insert)
             print msg
             raise SystemExit

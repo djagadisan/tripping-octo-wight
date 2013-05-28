@@ -17,7 +17,7 @@ class RunInstancesTest():
         client = self.nova_.createNovaConnection(obj)
         image_status = self.nova_.getImageInfo(obj.image_id,False,client)
         flavour_info = self.nova_.getFlavour(obj.flavour_name,client)
-        data_file = self.helper.sampleFile('create', obj.cp_file)
+        data_file = self.helper.sampleFile('create', obj.data_file)
         
         if image_status!=None and flavour_info!=None and data_file==None:
             msg="Image: %s (%s), status: %s" % (image_status.name,image_status.id, image_status.status)
@@ -33,7 +33,7 @@ class RunInstancesTest():
         
   
 
-    def runTest(self,obj,test_name):
+    def runTest(self,obj):
         
         startTime = time.time()
         
@@ -41,26 +41,27 @@ class RunInstancesTest():
         client = self.nova_.createNovaConnection(obj)
         
         
-        msg="Instance Run Test %s started" % test_name
+        msg="Instance Run Test %s started" % obj.test_name
         self.log.log_data(obj.log_file,msg,"INFO")
         
-        keypair = self.nova_.createKeypair(test_name,client)
+        keypair = self.nova_.createKeypair(obj.test_name,client)
         msg="Keypair created"
         self.log.log_data(obj.log_file,msg,"INFO")
+        
         
         stat = self.helper.writeFiles(obj.ssh_key,keypair.private_key)
         msg="SSH key written to file"
         self.log.log_data(obj.log_file,msg,"INFO")
         
         if keypair!=None and stat==0:
-            msg = "Keypair %s created" %test_name
+            msg = "Keypair %s created" %obj.test_name
             self.log.log_data(obj.log_file,msg,"INFO")
         else:
             msg = "Error in generating keypair"
             self.log.log_data(obj.log_file,msg,"ERROR")
             raise SystemExit
         
-        security_group = self.nova_.createSecurityGroup(test_name,client)
+        security_group = self.nova_.createSecurityGroup(obj.test_name,client)
         msg = "Security Group %s created" % security_group.name
         self.log.log_data(obj.log_file,msg,"INFO")
         
@@ -77,7 +78,7 @@ class RunInstancesTest():
         
         
        
-        run_instances = self.nova_.runInstances(test_name,obj.image_id,flavour_info.id,keypair.name,security_group.name.split(','),client,placement=obj.cell)
+        run_instances = self.nova_.runInstances(obj.test_name,obj.image_id,flavour_info.id,keypair.name,security_group.name.split(','),client,placement=obj.cell)
         
         if run_instances!=None:
              
@@ -102,7 +103,7 @@ class RunInstancesTest():
                 msg = "Running file check"
                 self.log.log_data(obj.log_file,msg,"INFO")
               
-                if self.helper.fileCheck(vm_post_run[1][0],obj.image_username,obj.cp_file,obj.tmp_dir,obj.ssh_key)==True:
+                if self.helper.fileCheck(vm_post_run[1][0],obj.image_username,obj.data_file,obj.tmp_dir,obj.ssh_key)==True:
                     msg = "File Check completed...passed"
                     self.log.log_data(obj.log_file,msg,"INFO")
                     
