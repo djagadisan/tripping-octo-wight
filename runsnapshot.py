@@ -34,13 +34,13 @@ class RunSnapshot():
                     time_comp = (time.time()-startTime)
                     msg = "Snapshot Failed, most likely snapshot is killed by glance"
                     self.log.log_data(obj.log_file,msg,"ERROR")
-                    return vm_snap,False
+                    return vm_snap,False,"FSE"
             else:
                 time_comp = (time.time()-startTime)
                 msg = "Snapshot failed, did not reach active state after %.2f seconds" % time_comp 
                 self.log.log_data(obj.log_file,msg,"ERROR")
                 print msg
-                return vm_snap,False,time_comp
+                return vm_snap,False,time_comp,"FST"
         time_comp = ((time.time()-startTime))                 
         msg = "Snapshot is ok, test took %.2f to complete" % time_comp
         self.log.log_data(obj.log_file,msg,"INFO")

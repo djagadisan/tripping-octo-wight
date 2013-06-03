@@ -23,8 +23,11 @@ class NovaAction():
     
     def createSecurityGroup(self,name,client):
         description = 'security group for test '+name
-        security_group = client.security_groups.create(name,description)
-        return security_group
+        try:
+            security_group = client.security_groups.create(name,description)
+            return security_group
+        except OverLimit:
+            return False
         
     def createSecurityGroupRules(self,sg_id,proto,port_to,port_frm,client):
         security_grouprules = client.security_group_rules.create(sg_id,proto,port_to,port_frm)
@@ -73,8 +76,7 @@ class NovaAction():
         
     def runInstances(self,name,image_id,flavor,keypair_name,sg_name,client,user_data=None,placement=None):
         hints={'cell':placement}
-
-	if user_data==None:
+        if user_data==None:
             run_instances = client.servers.create(name,image_id,flavor,key_name=keypair_name,
                                               security_groups=sg_name,scheduler_hints=hints)
             return run_instances

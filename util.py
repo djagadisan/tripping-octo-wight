@@ -55,7 +55,7 @@ class GetConfig():
         
     def connectSSH(self,hostname,user,key_rc):
         #TODO, disable ssh logging by paramiko properly
-        #logging.getLogger("paramiko").setLevel(logging.WARNING)
+        logging.getLogger("paramiko").setLevel(logging.WARNING)
         try: 
             ssh_client = paramiko.SSHClient()
             ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -64,32 +64,7 @@ class GetConfig():
         except SSHException:
             return False   
         
-
-    def runCommand(self,ssh_session,cmd=None,_type=None,local_file=None):
-        if _type==1:
-            stdin, stdout, stderr = ssh_session.exec_command(cmd)
-            return True
-        elif _type==2:
-            
-            stdin, stdout, stderr = ssh_session.exec_command(cmd)
-            _close = stdout.read()
-            return _close
-        elif _type==3:
-            _scp=ssh_session.open_sftp()
-            _scp.put(local_file,'test0')
-            _scp.close()
-            return True
-        elif _type==4:
-            _scp=ssh_session.open_sftp()
-            _scp.get('test01',local_file)
-            _scp.close()
-            return True
-        elif _type==5:
-            _return=subprocess.Popen(['md5sum',local_file],shell=False,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-            return _return.communicate()[0].split()            
-        else:
-            ssh_session.close()
-            
+    
 
     def _randomName(self):
         now = datetime.datetime.now()
@@ -154,23 +129,55 @@ class GetConfig():
                 return False
         return True
             
+    def runCommand(self,ssh_session,cmd=None,_type=None,local_file=None):
+        if _type==1:
+            stdin, stdout, stderr = ssh_session.exec_command(cmd)
+            return True
+        elif _type==2:
+            stdin, stdout, stderr = ssh_session.exec_command(cmd)
+            _close = stdout.read()
+            return _close
+        elif _type==3:
+            _scp=ssh_session.open_sftp()
+            _scp.put(local_file,local_file.split('/')[2])
+            _scp.close()
+            return True
+        elif _type==4:
+            _scp=ssh_session.open_sftp()
+            _scp.get(local_file.split('/')[2],local_file)
+            _scp.close()
+            return True           
+        else:
+            ssh_session.close()
             
-    def fileCheck(self,ip_address,user,test_file,work_directory,key_rc):
-        cmd1='dd if=/dev/zero of=test01 bs=1024K count=50'
-        cmd2="md5sum test01 | cut -d' ' -f1"             
-        ssh_session=self.connectSSH(ip_address, user, key_rc)
+           
+    def fileCheck(self,ip_address,obj):
+        
+        remote_file = 'test-'+obj.test_name
+        cmd1='dd if=/dev/zero of='+remote_file+' bs=1024K count=50'
+        cmd2="md5sum "+remote_file+ " | cut -d' ' -f1"             
+        ssh_session=self.connectSSH(ip_address, obj.image_username,obj.ssh_key)
+        
         if ssh_session!=False:
             self.runCommand(ssh_session, cmd=cmd1,_type=1)
             time.sleep(10)
             check_sum = self.runCommand(ssh_session,cmd=cmd2,_type=2).rstrip("\n")
-            self.runCommand(ssh_session,_type=3,local_file=test_file)
-            self.runCommand(ssh_session,_type=4,local_file=work_directory+"test01")
-            check_sum_local = self.runCommand(ssh_session,local_file=work_directory+"test01",_type=5)
+
+            self.runCommand(ssh_session,_type=3,local_file=obj.data_file)
+            self.runCommand(ssh_session,_type=4,local_file=obj.tmp_dir+remote_file)
+            
+            _md5=subprocess.Popen(['md5sum',obj.tmp_dir+remote_file],shell=False,
+                                  stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            
+            check_sum_local = _md5.communicate()[0].split()
+        
             if str(check_sum)==str(check_sum_local[0]):
-                if os.path.exists(work_directory+"test01"):
-                    os.remove(work_directory+"test01")
+                if os.path.exists(obj.tmp_dir+"test-"+obj.test_name):
+                    os.remove(obj.tmp_dir+"test-"+obj.test_name)
                 return True
             else:
+                if os.path.exists(obj.tmp_dir+"test-"+obj.test_name):
+                    os.remove(obj.tmp_dir+"test-"+obj.test_name)
                 return False
         else:
             return False
@@ -202,6 +209,7 @@ class GetConfig():
                 cmd=['/usr/bin/head', '-c','2048000','/dev/urandom'] 
                 run_cmd = subprocess.Popen(cmd,shell=False,stdout=out_fd,stderr=subprocess.PIPE)
                 run_cmd.communicate()
+                return True
             except IOError,e:
                 print "Error, Unable to create data file to upload"
                 raise SystemExit

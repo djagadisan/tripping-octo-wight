@@ -13,22 +13,22 @@ class RunInstancesTest():
     
     def preTestCheck(self,obj):
         
-
+        
         client = self.nova_.createNovaConnection(obj)
         image_status = self.nova_.getImageInfo(obj.image_id,False,client)
         flavour_info = self.nova_.getFlavour(obj.flavour_name,client)
         data_file = self.helper.sampleFile('create', obj.data_file)
         
-        if image_status!=None and flavour_info!=None and data_file==None:
+        if image_status!=None and flavour_info!=None and data_file==True:
             msg="Image: %s (%s), status: %s" % (image_status.name,image_status.id, image_status.status)
             self.log.log_data(obj.log_file,msg,"INFO")
             msg="Flavour type: %s, Flavour id: %s" %(flavour_info.name,flavour_info.id)
             self.log.log_data(obj.log_file,msg,"INFO")
             return True
         else:
-            msg="Flavour"
-            msg="Image status returned as none, pre-flight check test failed!, exiting test"
+            msg="Pre-flight check test failed! Image Status:%s ,Flavour Status: %s , Data File %s,  exiting test " % (image_status,flavour_info,data_file)
             self.log.log_data(obj.log_file,msg,"ERROR")
+            self.helper.sampleFile('remove',obj.data_file)
             return False
         
   
@@ -59,11 +59,17 @@ class RunInstancesTest():
         else:
             msg = "Error in generating keypair"
             self.log.log_data(obj.log_file,msg,"ERROR")
-            raise SystemExit
+            return False,None,(time.time()-startTime),"FKP"
         
         security_group = self.nova_.createSecurityGroup(obj.test_name,client)
-        msg = "Security Group %s created" % security_group.name
-        self.log.log_data(obj.log_file,msg,"INFO")
+        if security_group!=False:
+            msg = "Security Group %s created" % security_group.name
+            self.log.log_data(obj.log_file,msg,"INFO")
+        else:
+            msg = "Fail to create Security Group"
+            self.log.log_data(obj.log_file,msg,"INFO")
+            return False,None,(time.time()-startTime),"FSG"
+            
         
         self.nova_.createSecurityGroupRules(security_group.id,'tcp','22','22',client)
         msg = "Rules 'tcp', '22' 0.0.0.0/0 added"
@@ -76,7 +82,6 @@ class RunInstancesTest():
         msg = "Launching instances in 10 seconds"
         self.log.log_data(obj.log_file,msg,"INFO")
         
-        
        
         run_instances = self.nova_.runInstances(obj.test_name,obj.image_id,flavour_info.id,keypair.name,security_group.name.split(','),client,placement=obj.cell)
         
@@ -88,7 +93,7 @@ class RunInstancesTest():
         else:
             msg = "Failed to launch instances"
             self.log.log_data(obj.log_file,msg,"ERROR")
-            raise SystemExit
+            return False,None,(time.time()-startTime),"FRI"
         
         if self.helper._pollStatus(obj.timeout,run_instances.id,'ACTIVE',10,client)==True:
             vm_post_run = self.nova_.getInstancesInfo(run_instances.id,client) 
@@ -103,7 +108,7 @@ class RunInstancesTest():
                 msg = "Running file check"
                 self.log.log_data(obj.log_file,msg,"INFO")
               
-                if self.helper.fileCheck(vm_post_run[1][0],obj.image_username,obj.data_file,obj.tmp_dir,obj.ssh_key)==True:
+                if self.helper.fileCheck(vm_post_run[1][0],obj)==True:
                     msg = "File Check completed...passed"
                     self.log.log_data(obj.log_file,msg,"INFO")
                     
@@ -124,12 +129,12 @@ class RunInstancesTest():
                             msg = "Reboot Failed, Exiting Test"
                             self.log.log_data(obj.log_file,msg,"ERROR")
                             print msg
-                            return False,vm_post_run[0],(time.time()-startTime)
+                            return False,vm_post_run[0],(time.time()-startTime),"FRI"
                     else:
                         msg = "Task state did not change, stuck in reboot"
                         self.log.log_data(obj.log_file,msg,"ERROR")
                         print msg
-                        return False,vm_post_run[0],(time.time()-startTime)
+                        return False,vm_post_run[0],(time.time()-startTime),"FRTS"
                         
                     
                 
@@ -137,7 +142,7 @@ class RunInstancesTest():
                     msg = "File Check failed, exiting  Test"
                     self.log.log_data(obj.log_file,msg,"ERROR")
                     print msg
-                    return False,vm_post_run[0],(time.time()-startTime)
+                    return False,vm_post_run[0],(time.time()-startTime),"FFT"
                     
             
             
@@ -145,14 +150,15 @@ class RunInstancesTest():
                 msg = "Port is not responding after %.2f, possible timeout from boot" % (time.time()- startTime)
                 self.log.log_data(obj.log_file,msg,"ERROR")
                 print msg
-                return False,vm_post_run[0],(time.time()- startTime)
+                return False,vm_post_run[0],(time.time()- startTime),"FIPN"
                 
             
             
         else:
+            vm_post_run = self.nova_.getInstancesInfo(run_instances.id,client)
             msg = "Timeout from build, stuck in %r for more than %.2f" % (run_instances.status, (time.time()-startTime))
             self.log.log_data(obj.log_file,msg,"ERROR") 
             print msg
-            return False,vm_post_run[0],(time.time()- startTime)
+            return False,vm_post_run[0],(time.time()- startTime),"FISB"
               
     

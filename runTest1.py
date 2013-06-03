@@ -65,7 +65,7 @@ class RunTest1():
                         msg = "Clean Up complete, exiting test"
                         self.log.log_data(config.log_file,msg,"INFO")
                         print msg               
-                        data_insert = [config.test_name,self.run_time,config.cell,run_result[2],'0',snap[2],'0',time_comp,'0']
+                        data_insert = [config.test_name,self.run_time,config.cell,run_result[2],'P',snap[2],'P',time_comp,'P']
                         WriteCSV().createCSVFile(config.csv_file, data_insert)
                         raise SystemExit
                     else:
@@ -73,7 +73,7 @@ class RunTest1():
                         msg = "Error, Unable to remove security group and key pair"
                         self.log.log_data(config.log_file,msg,"ERROR")
                         print msg
-                        data_insert = [config.time_name,self.run_time,config.cell,run_result[2],'0',snap[2],'0',time_comp,'1']
+                        data_insert = [config.time_name,self.run_time,config.cell,run_result[2],'P',snap[2],'P',time_comp,'F']
                         WriteCSV().createCSVFile(config.csv_file, data_insert)
                         raise SystemExit
                      
@@ -106,7 +106,7 @@ class RunTest1():
                         msg = "Clean Up complete, exiting test"
                         self.log.log_data(config.log_file,msg,"INFO")
                         print msg               
-                        data_insert = [config.test_name,self.run_time,config.cell,run_result[2],'0','F','1',time_comp,'1']
+                        data_insert = [config.test_name,self.run_time,config.cell,run_result[2],'P',snap[2],snap[3],time_comp,'F']
                         WriteCSV().createCSVFile(config.csv_file, data_insert)
                         raise SystemExit
                     else:
@@ -114,7 +114,7 @@ class RunTest1():
                         msg = "Error, Unable to remove security group and key pair"
                         self.log.log_data(config.log_file,msg,"ERROR")
                         print msg
-                        data_insert = [config.test_name,self.run_time,config.cell,run_result[2],'0','F','1',time_comp,'1']
+                        data_insert = [config.test_name,self.run_time,config.cell,run_result[2],'P',snap[2],snap[3],time_comp,'F']
                         WriteCSV().createCSVFile(config.csv_file, data_insert)
                         raise SystemExit
                     
@@ -140,7 +140,7 @@ class RunTest1():
                         msg = "Clean Up complete, exiting test"
                         self.log.log_data(config.log_file,msg,"INFO")
                         print msg               
-                        data_insert = [config.test_name,self.run_time,config.cell,'F','1','NA','NA',time_comp,'1']
+                        data_insert = [config.test_name,self.run_time,config.cell,run_result[2],run_result[3],'NA','NA',time_comp,'F']
                         WriteCSV().createCSVFile(config.csv_file, data_insert)
                         raise SystemExit
                 else:
@@ -148,13 +148,13 @@ class RunTest1():
                         msg = "Error, Unable to remove security group and key pair"
                         self.log.log_data(config.log_file,msg,"ERROR")
                         print msg
-                        data_insert = [config.test_name,self.run_time,config.cell,'F','1','NA','NA',time_comp,'1']
+                        data_insert = [config.test_name,self.run_time,config.cell,run_result[2],run_result[3],'NA','NA',time_comp,'F']
                         WriteCSV().createCSVFile(config.csv_file, data_insert)
                         raise SystemExit
         else:
             msg = "Pre Check failed, test halted"
             time_comp = self.var_.getrunTime('time')-self.startTime
-            data_insert = [config.test_name,self.run_time,config.cell,'F','1','NA','NA',time_comp,'1']
+            data_insert = [config.test_name,self.run_time,config.cell,'0','FPCT','NA','NA',time_comp,'F']
             WriteCSV().createCSVFile(config.csv_file, data_insert)
             self.log.log_data(config.log_file,msg,"ERROR")
             print msg
