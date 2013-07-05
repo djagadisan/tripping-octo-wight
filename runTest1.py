@@ -90,33 +90,63 @@ class RunTest1():
                     msg = "Removing Failed Snapshot"
                     self.log.log_data(config.log_file,msg,"INFO")
                     print msg
-                    self.clear.removeSnapshot(config, snap[0])
+                    if self.clear.removeSnapshot(config, snap[0])==True:
                     
-                    msg = "Terminating Instances"
-                    self.log.log_data(config.log_file,msg,"INFO")
-                    print msg
-                    self.clear.removeInstances(config, run_result[1])
-                    
-                    msg = "Removing Security Groups and Keypair"
-                    self.log.log_data(config.log_file,msg,"INFO")
-                    misc = {'sg':config.test_name,'kp':config.test_name}
-                    time.sleep(int(config.timeout))
-                    if self.clear.removeMisc(config,misc,run_result[1])==True:
-                        time_comp = self.var_.getrunTime('time')-self.startTime 
-                        msg = "Clean Up complete, exiting test"
+                        msg = "Terminating Instances"
                         self.log.log_data(config.log_file,msg,"INFO")
-                        print msg               
-                        data_insert = [config.test_name,self.run_time,config.cell,run_result[2],'P',snap[2],snap[3],time_comp,'F']
-                        WriteCSV().createCSVFile(config.csv_file, data_insert)
-                        raise SystemExit
-                    else:
-                        time_comp = time.time()-self.startTime
-                        msg = "Error, Unable to remove security group and key pair"
-                        self.log.log_data(config.log_file,msg,"ERROR")
                         print msg
-                        data_insert = [config.test_name,self.run_time,config.cell,run_result[2],'P',snap[2],snap[3],time_comp,'F']
-                        WriteCSV().createCSVFile(config.csv_file, data_insert)
-                        raise SystemExit
+                        self.clear.removeInstances(config, run_result[1])
+                    
+                    
+                        msg = "Removing Security Groups and Keypair"
+                        self.log.log_data(config.log_file,msg,"INFO")
+                        misc = {'sg':config.test_name,'kp':config.test_name}
+                        time.sleep(int(config.timeout))
+                        if self.clear.removeMisc(config,misc,run_result[1])==True:
+                            time_comp = self.var_.getrunTime('time')-self.startTime 
+                            msg = "Clean Up complete, exiting test"
+                            self.log.log_data(config.log_file,msg,"INFO")
+                            print msg               
+                            data_insert = [config.test_name,self.run_time,config.cell,run_result[2],'P',snap[2],snap[3],time_comp,'F']
+                            WriteCSV().createCSVFile(config.csv_file, data_insert)
+                            raise SystemExit
+                        else:
+                            time_comp = time.time()-self.startTime
+                            msg = "Error, Unable to remove security group and key pair"
+                            self.log.log_data(config.log_file,msg,"ERROR")
+                            print msg
+                            data_insert = [config.test_name,self.run_time,config.cell,run_result[2],'P',snap[2],snap[3],time_comp,'F']
+                            WriteCSV().createCSVFile(config.csv_file, data_insert)
+                            raise SystemExit
+                    else:
+                    
+                        msg = "Terminating Instances"
+                        self.log.log_data(config.log_file,msg,"INFO")
+                        print msg
+                        self.clear.removeInstances(config, run_result[1])
+                    
+                    
+                        msg = "Removing Security Groups and Keypair"
+                        self.log.log_data(config.log_file,msg,"INFO")
+                        misc = {'sg':config.test_name,'kp':config.test_name}
+                        time.sleep(int(config.timeout))
+                        if self.clear.removeMisc(config,misc,run_result[1])==True:
+                            time_comp = self.var_.getrunTime('time')-self.startTime 
+                            msg = "Clean Up complete, exiting test"
+                            self.log.log_data(config.log_file,msg,"INFO")
+                            print msg               
+                            data_insert = [config.test_name,self.run_time,config.cell,run_result[2],'P',snap[2],'FURS',time_comp,'F']
+                            WriteCSV().createCSVFile(config.csv_file, data_insert)
+                            raise SystemExit
+                        else:
+                            time_comp = time.time()-self.startTime
+                            msg = "Error, Unable to remove security group and key pair"
+                            self.log.log_data(config.log_file,msg,"ERROR")
+                            print msg
+                            data_insert = [config.test_name,self.run_time,config.cell,run_result[2],'P',snap[2],'FURS',time_comp,'F']
+                            WriteCSV().createCSVFile(config.csv_file, data_insert)
+                            raise SystemExit
+                    
                     
             else:
                 msg = "Run instances test failed"

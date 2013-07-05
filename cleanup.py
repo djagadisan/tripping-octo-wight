@@ -44,9 +44,12 @@ class CleanUp():
     def removeSnapshot(self,obj,snapshot_id):
             
             client = self.nova_.createNovaConnection(obj)
-            self.nova_.deleteSnapshot(snapshot_id, client)
-            msg="Snapshot Removed"
-            self.log.log_data(obj.log_file,msg,"INFO")
+            
+            if self.nova_.deleteSnapshot(snapshot_id, client)==True:
+                msg="Snapshot Removed"
+                self.log.log_data(obj.log_file,msg,"INFO")
+            else:
+                return False
             
 
             

@@ -34,22 +34,23 @@ class NovaAction():
         return security_grouprules
  
     def getImageInfo(self,image_id,type_,client):
-        count = 0
-        if count!=10: 
+        
+        count=0
+        while count!=5:
             try: 
                 for i in client.images.list():
                     if i.id==unicode(image_id):
                         if i!=None:
                             if type_==True:
-                                return i.status
-                            elif type_==False:
+                                return i.status 
+                            elif type_==False: 
                                 return i
-                        else:
-                            return False
+                            else:
+                                return 0
             except Exception,ClientException:
                 count=count+1
-        else:
-            return False
+        
+        return False
         
     def getFlavour(self,flavour_name,client):
         for i in client.flavors.list():
@@ -84,8 +85,11 @@ class NovaAction():
         if vm.reboot():
             return True
     def createSnapshot(self,name,vm_id,client):
-        snapshot_id=client.servers.create_image(vm_id,"snap-"+name)
-        return snapshot_id
+        try:
+            snapshot_id=client.servers.create_image(vm_id,"snap-"+name)
+            return snapshot_id
+        except ClientException:
+            return False
                
                 
     def getInstancesInfo(self,vm_id,client):
@@ -110,19 +114,18 @@ class NovaAction():
         
     def deleteSnapshot(self,snapshot,client):
         
-        count = 0
-        
+        count = 0 
         if count!=10:
             image = self.getImageInfo(snapshot,False,client)
             if image!=False:
-                while True or count!=10:
+                while True:
                     try:
                         image.delete()
                         return True
-                    except Exception:
-                        time.sleep(5)
-                        count=count+1    
-                        
+                    except Forbidden:
+                        return False
+                    except ClientException:
+                        count=count+1
             else:
                 count=count+1
         else:

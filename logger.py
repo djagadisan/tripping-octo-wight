@@ -28,6 +28,8 @@ class Logger():
             
             elif type=="WARNING":
                 logging.warning(info)
+            else:
+                logging.info(info)
                 
         except IOError,e:
             print "Error, %s" %e

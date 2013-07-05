@@ -11,7 +11,7 @@ __init__ = 'main'
 get_options = Options()
 data=get_options.arg_parse()
 config = GetVar(getattr(data,"tenant"))
-cells_available = ['melbourne-np','melbourne-qh2','qld','monash']
+cells_available = ['melbourne','melbourne-np','melbourne-qh2','qld','monash']
 if getattr(data,"cell")!=None:
     if getattr(data,"cell") in cells_available:
         config.cell = getattr(data,"cell")
